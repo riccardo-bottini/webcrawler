@@ -1,5 +1,6 @@
 package com.bottiniriccardo.webcrawler.utils;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
@@ -14,10 +15,6 @@ public class ParserUtils {
     public static String checkUrlFormat(String url) {
         if (!url.endsWith("/")) {
             url = url + '/';
-        }
-
-        if (url.startsWith("http://")) {
-            return url;
         }
 
         if (!url.startsWith("https://")) {
@@ -57,6 +54,14 @@ public class ParserUtils {
         String matchedDomain = matchedHost.substring(matchedDotIndex + 1);
 
         return parentDomain.equals(matchedDomain);
+    }
+
+    public static URL isValidUrl(String urlToBeChecked) {
+        try {
+            return new URL(urlToBeChecked);
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
 }

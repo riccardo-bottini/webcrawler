@@ -38,7 +38,7 @@ public class WebCrawlerApplicationTests {
         Reader reader = new StringReader(htmlBody);
         String url = "https://www.foobar.com";
         try {
-            Crawler.crawlUrl(new URL(url), new BufferedReader(reader), url);
+            Crawler.crawlUrl(new URL(url), new BufferedReader(reader));
         } catch (IOException e) {
             e.printStackTrace();
         }

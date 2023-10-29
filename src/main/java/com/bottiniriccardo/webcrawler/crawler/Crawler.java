@@ -33,7 +33,7 @@ public class Crawler {
             URL websiteToCrawl = new URL(inputUrl);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(websiteToCrawl.openStream()));
 
-            crawlUrl(websiteToCrawl, bufferedReader, inputUrl);
+            crawlUrl(websiteToCrawl, bufferedReader);
 
             bufferedReader.close();
 
@@ -57,16 +57,26 @@ public class Crawler {
         }
     }
 
+    /**
+     * Wait the termination of every thread
+     * @param crawlerThreads
+     * @throws InterruptedException
+     */
     private static void waitForTermination(List<CrawlerThread> crawlerThreads) throws InterruptedException {
-        // Wait the termination of every thread
         for (CrawlerThread thread : crawlerThreads) {
             thread.join();
         }
     }
 
-    public static void crawlUrl(URL websiteToCrawl, BufferedReader bufferedReader, String inputUrl) throws IOException{
+    /**
+     * Crawl the input URL
+     * @param websiteToCrawl
+     * @param bufferedReader
+     * @throws IOException
+     */
+    public static void crawlUrl(URL websiteToCrawl, BufferedReader bufferedReader) throws IOException {
         String websiteRow = null;
-
+        
         while ((websiteRow = bufferedReader.readLine()) != null) {
             Document doc = Jsoup.parse(websiteRow);
 
@@ -77,13 +87,16 @@ public class Crawler {
 
                 // Exctract the "href" element
                 String matchedUrlString = link.attr("href");
+
+                // Check if the content of href element is valid
                 // Exclude URLs that referes to a file, the external links (with a different
                 // domain) and the input URL
-                URL matchedUrl = new URL(matchedUrlString);
-                if (!(ParserUtils.isFile(matchedUrlString)) &&
+                URL matchedUrl = ParserUtils.isValidUrl(matchedUrlString);
+                if (matchedUrl != null &&
+                        !(ParserUtils.isFile(matchedUrlString)) &&
                         ParserUtils.isSameDomain(websiteToCrawl, matchedUrl) &&
-                        !(matchedUrlString.equalsIgnoreCase(inputUrl))) {
-                    logger.debug("Found URL: " + matchedUrlString);
+                        !(matchedUrl.sameFile(websiteToCrawl))) {
+                    logger.info("Found URL: " + matchedUrlString);
                     // Add the Url to the list
                     Main.visitedUrls.add(matchedUrlString);
                 }

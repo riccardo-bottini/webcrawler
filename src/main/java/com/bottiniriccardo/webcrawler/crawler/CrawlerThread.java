@@ -53,25 +53,27 @@ public class CrawlerThread extends Thread {
                 for (Element link : links) {
                     // Exctract the "href" element
                     String matchedUrlString = link.attr("href");
+                    
+                    // Check if the content of href element is valid
                     // Exclude URLs that referes to a file, the external links (with a different
                     // domain) and the input URL
-                    URL matchedUrl = new URL(matchedUrlString);
-                    if (!(ParserUtils.isFile(matchedUrlString)) &&
+                    URL matchedUrl = ParserUtils.isValidUrl(matchedUrlString);
+                    if (matchedUrl != null &&
+                            !(ParserUtils.isFile(matchedUrlString)) &&
                             ParserUtils.isSameDomain(websiteToCrawl, matchedUrl) &&
-                            !(matchedUrlString.equalsIgnoreCase(parentUrl)) &&
+                            !(matchedUrl.sameFile(new URL(parentUrl))) &&
                             addUrl(matchedUrlString)) {
-                        logger.debug("THREAD URL: " + matchedUrlString);
+                        logger.info("Thread URL: " + matchedUrlString);
                         CrawlerThread crawlerThread = new CrawlerThread(parentUrl, matchedUrlString);
                         crawlerThread.start();
                     }
-
                 }
             }
-
+            
             bufferedReader.close();
 
         } catch (MalformedURLException e) {
-            logger.severe("Exception caused by URL " + url);
+            logger.severe("Exception caused by URL");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
