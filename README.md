@@ -14,4 +14,4 @@ mvn clean install
 
 java -jar target/webcrawler-1.0-SNAPSHOT-jar-with-dependencies.jar <your URL>
 ```
-The output is stored in target/output.txt
+The output is stored in target/output.txt (or in your path if you start the jar from another directory)
