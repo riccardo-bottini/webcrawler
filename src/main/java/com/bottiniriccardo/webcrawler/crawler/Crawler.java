@@ -33,31 +33,7 @@ public class Crawler {
             URL websiteToCrawl = new URL(inputUrl);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(websiteToCrawl.openStream()));
 
-            String websiteRow = null;
-
-            while ((websiteRow = bufferedReader.readLine()) != null) {
-                Document doc = Jsoup.parse(websiteRow);
-
-                // Select rows that has the "a" element
-                Elements links = doc.select("a");
-
-                for (Element link : links) {
-
-                    // Exctract the "href" element
-                    String matchedUrlString = link.attr("href");
-                    // Exclude URLs that referes to a file, the external links (with a different
-                    // domain) and the input URL
-                    URL matchedUrl = new URL(matchedUrlString);
-                    if (!(ParserUtils.isFile(matchedUrlString)) &&
-                            ParserUtils.isSameDomain(websiteToCrawl, matchedUrl) &&
-                            !(matchedUrlString.equalsIgnoreCase(inputUrl))) {
-                        logger.info("Found URL: " + matchedUrlString);
-                        // Add the Url to the list
-                        Main.visitedUrls.add(matchedUrlString);
-                    }
-
-                }
-            }
+            crawlUrl(websiteToCrawl, bufferedReader, inputUrl);
 
             bufferedReader.close();
 
@@ -85,6 +61,33 @@ public class Crawler {
         // Wait the termination of every thread
         for (CrawlerThread thread : crawlerThreads) {
             thread.join();
+        }
+    }
+
+    public static void crawlUrl(URL websiteToCrawl, BufferedReader bufferedReader, String inputUrl) throws IOException{
+        String websiteRow = null;
+
+        while ((websiteRow = bufferedReader.readLine()) != null) {
+            Document doc = Jsoup.parse(websiteRow);
+
+            // Select rows that has the "a" element
+            Elements links = doc.select("a");
+
+            for (Element link : links) {
+
+                // Exctract the "href" element
+                String matchedUrlString = link.attr("href");
+                // Exclude URLs that referes to a file, the external links (with a different
+                // domain) and the input URL
+                URL matchedUrl = new URL(matchedUrlString);
+                if (!(ParserUtils.isFile(matchedUrlString)) &&
+                        ParserUtils.isSameDomain(websiteToCrawl, matchedUrl) &&
+                        !(matchedUrlString.equalsIgnoreCase(inputUrl))) {
+                    logger.debug("Found URL: " + matchedUrlString);
+                    // Add the Url to the list
+                    Main.visitedUrls.add(matchedUrlString);
+                }
+            }
         }
     }
 }

@@ -51,15 +51,17 @@ public class CrawlerThread extends Thread {
                 Elements links = doc.select("a");
 
                 for (Element link : links) {
-
                     // Exctract the "href" element
-                    String matchedUrl = link.attr("href");
+                    String matchedUrlString = link.attr("href");
                     // Exclude URLs that referes to a file, the external links (with a different
-                    // domain) and the parent URL
-                    if (!(ParserUtils.isFile(matchedUrl)) && matchedUrl.contains(parentUrl) && !(matchedUrl.equalsIgnoreCase(parentUrl))
-                            && addAndStartCrawl(matchedUrl)) {
-                        logger.info("THREAD URL: " + matchedUrl);
-                        CrawlerThread crawlerThread = new CrawlerThread(parentUrl, matchedUrl);
+                    // domain) and the input URL
+                    URL matchedUrl = new URL(matchedUrlString);
+                    if (!(ParserUtils.isFile(matchedUrlString)) &&
+                            ParserUtils.isSameDomain(websiteToCrawl, matchedUrl) &&
+                            !(matchedUrlString.equalsIgnoreCase(parentUrl)) &&
+                            addUrl(matchedUrlString)) {
+                        logger.debug("THREAD URL: " + matchedUrlString);
+                        CrawlerThread crawlerThread = new CrawlerThread(parentUrl, matchedUrlString);
                         crawlerThread.start();
                     }
 
@@ -68,17 +70,17 @@ public class CrawlerThread extends Thread {
 
             bufferedReader.close();
 
-        } catch (MalformedURLException e){
+        } catch (MalformedURLException e) {
             logger.severe("Exception caused by URL " + url);
             e.printStackTrace();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             this.interrupt();
         }
     }
 
-    private synchronized boolean addAndStartCrawl(String url) {
+    private synchronized boolean addUrl(String url) {
         return Main.visitedUrls.add(url);
     }
 }

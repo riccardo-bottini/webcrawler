@@ -16,9 +16,14 @@ public class ParserUtils {
             url = url + '/';
         }
 
+        if (url.startsWith("http://")) {
+            return url;
+        }
+
         if (!url.startsWith("https://")) {
             url = "https://" + url;
         }
+
         return url;
     }
 
@@ -36,11 +41,12 @@ public class ParserUtils {
 
     /**
      * Check if the two URLs have the same domain
+     * 
      * @param parentUrl
      * @param matchedUrl
      * @return
      */
-    public static boolean isSameDomain(URL parentUrl, URL matchedUrl){
+    public static boolean isSameDomain(URL parentUrl, URL matchedUrl) {
         String parentHost = parentUrl.getHost();
         String matchedHost = matchedUrl.getHost();
 
